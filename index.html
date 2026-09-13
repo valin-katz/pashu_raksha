@@ -12,8 +12,67 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="style.css" />
+  <!-- Security & Anti-Inspection Shield -->
+  <script>
+    (function () {
+      // 1. Silence all console methods to prevent inspection of logs and variables
+      const noop = function () {};
+      ['log', 'debug', 'info', 'warn', 'error', 'table', 'trace', 'dir'].forEach(function (method) {
+        try { console[method] = noop; } catch (e) {}
+      });
+
+      // 2. Disable right click context menu
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+        return false;
+      });
+
+      // 3. Intercept and block DevTools keyboard shortcuts
+      window.addEventListener('keydown', function (e) {
+        // F12
+        if (e.key === 'F12' || e.keyCode === 123) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+        if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && e.key.toUpperCase() === 'U') {
+          e.preventDefault();
+          return false;
+        }
+        // Ctrl+S (Save Page)
+        if (e.ctrlKey && e.key.toUpperCase() === 'S') {
+          e.preventDefault();
+          return false;
+        }
+      }, true);
+
+      // 4. Anti-debugger loop: triggers debugger to freeze DevTools Sources tab
+      setInterval(function () {
+        (function (a) {
+          return (function (b) {
+            Function('debugger')();
+          })(a);
+        })(0);
+      }, 200);
+
+      // 5. DevTools open detector: triggers blanking if developer tools are docked open
+      setInterval(function () {
+        const threshold = 160;
+        const widthDiff = window.outerWidth - window.innerWidth > threshold;
+        const heightDiff = window.outerHeight - window.innerHeight > threshold;
+        if (widthDiff || heightDiff) {
+          document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#0f172a;color:#fff;font-family:sans-serif;text-align:center;padding:24px;"><div><h1 style="color:#ef4444;font-size:2rem;margin-bottom:12px;">Access Denied</h1><p style="color:#94a3b8;font-size:1.1rem;">Developer tools and code inspection are disabled on this platform.</p></div></div>';
+        }
+      }, 600);
+    })();
+  </script>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <!-- ROLE SELECTION -->
 <div id="role-screen">
